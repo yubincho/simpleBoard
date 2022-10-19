@@ -29,7 +29,7 @@
 ![image](https://user-images.githubusercontent.com/58660769/196580255-4b500755-ba2e-4f61-9cd2-fc6554c95b18.png)
 
 
-* 게시판 상세보기, 댓글 기능
+* 게시판 상세보기, 댓글(대댓글 포함) 기능
 ![image](https://user-images.githubusercontent.com/58660769/196580331-5c3c26db-b798-4221-b539-0fe744880770.png)
 
 
