@@ -12,7 +12,7 @@
 
 * 로그인시 아이디 기억하기 (쿠키 사용)
 @RequestMapping("/memLogin.do")
-		public String memLogin(boolean rememberId, Member m, RedirectAttributes rttr, HttpSession session,  HttpServletRequest request, HttpServletResponse response) {
+public String memLogin(boolean rememberId, Member m, RedirectAttributes rttr, HttpSession session,  HttpServletRequest request, HttpServletResponse response) {
 			if(m.getMemID()==null || m.getMemID().equals("") ||
 			   m.getMemPassword()==null || m.getMemPassword().equals("")) {
 			   rttr.addFlashAttribute("msgType", "실패 메세지");
