@@ -11,6 +11,11 @@
 
 ## 
 
+* 다이아그램
+
+![image](https://user-images.githubusercontent.com/58660769/197371382-48ad912c-8ab5-461d-befa-3a0b8c57748e.png)
+
+## 
 
 
 * 로그인, 쿠키를 이용한 아이디 기억하기 기능
