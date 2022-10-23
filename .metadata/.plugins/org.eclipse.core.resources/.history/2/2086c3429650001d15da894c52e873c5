@@ -1,0 +1,335 @@
+package com.example.site.controller;
+
+import java.io.File;
+import java.io.IOException;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+//import com.example.site.config.UploadFile;
+import com.example.site.domain.Member;
+import com.example.site.mapper.MemberMapper;
+import com.oreilly.servlet.MultipartRequest;
+import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequiredArgsConstructor
+@Controller
+public class MemberController {
+	
+
+	private final MemberMapper memberMapper;
+	
+	
+	
+	@GetMapping("/memJoin.do")
+	public String joinForm() {
+		
+		return "member/join";
+	}
+	
+	@GetMapping("/memLogin.do")
+	public String loginForm() {
+		
+		return "member/login";
+	}
+	
+	
+	@GetMapping("/memRegisterCheck.do")
+	public @ResponseBody int memRegisterCheck(@RequestParam("memID") String memID) {
+		
+		Member m = memberMapper.registerCheck(memID);
+		if(m!=null || memID.equals("")) {
+			return 0; // 이미 존재하는 회원, 또는 공백. 입력 불가
+		}
+		return 1;  // 사용 가능한 아이디
+	}
+	
+	
+	@PostMapping("/memRegister.do")
+	public String memRegister(Member m, String memPassword1, String memPassword2,
+            RedirectAttributes rttr, HttpSession session) {
+		
+			if(m.getMemID()==null || m.getMemID().equals("") ||
+			memPassword1==null || memPassword1.equals("") ||
+			memPassword2==null || memPassword2.equals("") ||
+			m.getMemName()==null || m.getMemName().equals("") ||	
+			m.getMemAge()==0 ||
+			m.getMemGender()==null || m.getMemGender().equals("") ||
+			m.getMemEmail()==null || m.getMemEmail().equals("")) {
+			// 누락메세지를 가지고 가기? =>객체바인딩(Model, HttpServletRequest, HttpSession)
+			rttr.addFlashAttribute("msgType", "실패 메세지");
+			rttr.addFlashAttribute("msg", "모든 내용을 입력하세요.");
+			return "redirect:/memJoin.do";  // ${msgType} , ${msg}
+			}
+			
+			if(!memPassword1.equals(memPassword2)) {
+			rttr.addFlashAttribute("msgType", "실패 메세지");
+			rttr.addFlashAttribute("msg", "비밀번호가 서로 다릅니다.");
+			return "redirect:/memJoin.do";  // ${msgType} , ${msg}
+			}		
+			m.setMemProfile(""); // 사진이미는 없다는 의미 ""
+			
+			// 회원을 테이블에 저장하기
+			int result=memberMapper.register(m);
+			
+			if(result==1) { // 회원가입 성공 메세지
+			rttr.addFlashAttribute("msgType", "성공 메세지");
+			rttr.addFlashAttribute("msg", "회원가입에 성공했습니다.");
+			
+			// 회원가입이 성공하면=>로그인처리하기
+			session.setAttribute("mvo", m); // ${!empty mvo}
+			return "redirect:/";
+			}else {
+			rttr.addFlashAttribute("msgType", "실패 메세지");
+			rttr.addFlashAttribute("msg", "이미 존재하는 회원입니다.");
+			
+			return "redirect:/memJoin.do";
+				}		
+			}
+	
+	
+	// 로그아웃 처리
+		@RequestMapping("/memLogout.do")
+		public String memLogout(HttpSession session) {
+			session.invalidate();
+			return "redirect:/";
+		}
+		
+		
+		// 로그인 기능 구현
+		@RequestMapping("/memLogin.do")
+		public String memLogin(boolean rememberId, Member m, RedirectAttributes rttr, HttpSession session,  HttpServletRequest request, HttpServletResponse response) {
+			if(m.getMemID()==null || m.getMemID().equals("") ||
+			   m.getMemPassword()==null || m.getMemPassword().equals("")) {
+			   rttr.addFlashAttribute("msgType", "실패 메세지");
+			   rttr.addFlashAttribute("msg", "모든 내용을 입력해주세요.");
+			   return "redirect:/memLogin.do";			
+			}
+			Member mvo=memberMapper.memLogin(m);
+			if(mvo!=null) { // 로그인에 성공
+			//  세션 객체를 얻어오기
+		        
+		        //  세션 객체에 id를 저장
+		        session.setAttribute("id", m.getMemID());
+		        
+		        if(rememberId) {
+		            //     1. 쿠키를 생성
+		            Cookie cookie = new Cookie("id", m.getMemID()); // ctrl+shift+o 자동 import
+//				       2. 응답에 저장
+		            response.addCookie(cookie);
+		        } else {
+		            // 1. 쿠키를 삭제
+		            Cookie cookie = new Cookie("id", m.getMemID()); // ctrl+shift+o 자동 import
+		            cookie.setMaxAge(0); // 쿠키를 삭제
+//				       2. 응답에 저장
+		            response.addCookie(cookie);
+		        }
+		        
+		        
+			   rttr.addFlashAttribute("msgType", "성공 메세지");
+			   rttr.addFlashAttribute("msg", "로그인에 성공했습니다.");
+			   
+			   session.setAttribute("mvo", mvo); // ${!empty mvo}
+			   return "redirect:/";	 // 메인		
+			}else { // 로그인에 실패
+			   rttr.addFlashAttribute("msgType", "실패 메세지");
+			   rttr.addFlashAttribute("msg", "다시 로그인 해주세요.");
+			   return "redirect:/memLogin.do";
+			}		
+		}
+		
+		
+		// 회원 정보 수정 화면으로 이동
+		@GetMapping("/memUpdate.do")
+		public String memUpdateForm() {
+			return "member/memUpdate";
+		}
+		
+		
+		// 회원 정보 수정
+		@PostMapping("/memUpdate.do")
+		public String memUpdate(Member m, RedirectAttributes rttr,
+				String memPassword1, String memPassword2, HttpSession session) {
+			if(m.getMemID()==null || m.getMemID().equals("") ||
+			   memPassword1==null || memPassword1.equals("") ||
+			   memPassword2==null || memPassword2.equals("") ||
+			   m.getMemName()==null || m.getMemName().equals("") ||	
+			   m.getMemAge()==0 ||
+			   m.getMemGender()==null || m.getMemGender().equals("") ||
+			   m.getMemEmail()==null || m.getMemEmail().equals("")) {
+			   // 누락메세지를 가지고 가기? =>객체바인딩(Model, HttpServletRequest, HttpSession)
+			   rttr.addFlashAttribute("msgType", "실패 메세지");
+			   rttr.addFlashAttribute("msg", "모든 내용을 입력하세요.");
+			   return "redirect:/memUpdate.do";  // ${msgType} , ${msg}
+			}
+			if(!memPassword1.equals(memPassword2)) {
+			   rttr.addFlashAttribute("msgType", "실패 메세지");
+			   rttr.addFlashAttribute("msg", "비밀번호가 서로 다릅니다.");
+			   return "redirect:/memUpdate.do";  // ${msgType} , ${msg}
+			}		
+			// 회원을 수정저장하기
+			int result=memberMapper.memUpdate(m);
+			if(result==1) { // 수정성공 메세지
+			   rttr.addFlashAttribute("msgType", "성공 메세지");
+			   rttr.addFlashAttribute("msg", "회원정보 수정에 성공했습니다.");
+			   // 회원수정이 성공하면=>로그인처리하기
+			   session.setAttribute("mvo", m); // ${!empty mvo}
+			   return "redirect:/memUpdate.do";
+			}else {
+			   rttr.addFlashAttribute("msgType", "실패 메세지");
+			   rttr.addFlashAttribute("msg", "회원정보 수정에 실패했습니다.");
+			   return "redirect:/memUpdate.do";
+			}
+		}
+	
+		
+		// 회원의 사진등록 화면
+		@GetMapping("/memImage.do")
+		public String memImageForm() {
+			return "member/memImage";  // memImageForm.jsp
+		}
+		
+		
+		// 회원사진 이미지 업로드(upload, DB저장)
+		@RequestMapping("/memImageUpdate.do")
+		public String memImageUpdate1(HttpServletRequest request,HttpSession session, RedirectAttributes rttr) throws IOException {
+			// 파일업로드 API(cos.jar, 3가지)
+			MultipartRequest multi = null;
+			int fileMaxSize = 40 * 1024 * 1024; // 10MB		
+//			String savePath = request.getSession().getServletContext().getRealPath("/resources/images"); // 1.png
+//			String savePath = request.getServletContext().getRealPath("/resources/images/");
+//			String savePath = request.getRealPath("/resources/images/"); // 이클립스가 저장하는 경로
+			
+//			System.out.println(savePath);
+			//String savePath = "C:\\JAVA_AM_CYB\\temp"; // 절대경로
+//			String savePath = "C:\\uploads"; // 절대경로
+			String savePath = "D:\\bookstore\\work\\demo\\src\\main\\webapp\\resources\\images";
+			//String savePath = request.getServletContext().getFile("classpath:static/upload/").toPath().toString();
+			//String savePath = ResourceUtils.getFile("classpath:static/upload/").toPath().toString();
+			
+			
+			
+			try {                                                                        // 1_1.png
+				DefaultFileRenamePolicy policy = new DefaultFileRenamePolicy();
+				// 이미지 업로드
+				multi=new MultipartRequest(request, "D:\\bookstore\\work\\demo\\src\\main\\webapp\\resources\\images", fileMaxSize, "UTF-8", policy);
+			
+			} catch (Exception e) {
+				e.printStackTrace();
+				rttr.addFlashAttribute("msgType", "실패 메세지");
+				rttr.addFlashAttribute("msg", "파일의 크기는 10MB를 넘을 수 없습니다.");			
+				return "redirect:/memImage.do";
+			} 
+			// 데이터베이스 테이블에 회원이미지를 업데이트
+			String memID=multi.getParameter("memID");
+			String newProfile="";
+			File file=multi.getFile("memProfile"); // input 태그의 name 속성 이름을 가져옴 (저장된 파일) 
+			if(file !=null) { // 업로드가 된상태(.png, .jpg, .gif)
+				// 이미파일 여부를 체크->이미지 파일이 아니면 삭제(1.png)
+				String ext=file.getName().substring(file.getName().lastIndexOf(".")+1);
+				ext=ext.toUpperCase(); // PNG, GIF, JPG
+				if(ext.equals("PNG") || ext.equals("GIF") || ext.equals("JPG")){
+					// 새로 업로드된이미지(new->1.PNG), 현재DB에 있는 이미지(old->4.PNG)
+					String oldProfile=memberMapper.getMember(memID).getMemProfile();
+					File oldFile=new File("D:\\bookstore\\work\\demo\\src\\main\\webapp\\resources\\images" +"\\"+oldProfile);
+					if(oldFile.exists()) {
+						oldFile.delete();
+					}                 
+					newProfile=file.getName(); // oldFile 삭제 후 newFile에 옮겨놓음 
+				}else { // 이미지 파일이 아니면
+					if(file.exists()) {
+						file.delete(); //삭제
+
+					}
+					rttr.addFlashAttribute("msgType", "실패 메세지");
+					rttr.addFlashAttribute("msg", "이미지 파일만 업로드 가능합니다.");			
+					return "redirect:/memImage.do";
+				}
+			}
+
+			
+			// 새로운 이미지를 테이블에 업데이트
+			Member mvo=new Member();
+			mvo.setMemID(memID);
+			mvo.setMemProfile(newProfile);
+			memberMapper.memProfileUpdate(mvo); // 이미지 업데이트 성공
+			
+			Member m=memberMapper.getMember(memID);
+			
+			// 세션을 새롭게 생성한다. <- 세션에 변경된 정보가 포함 
+			
+			
+			
+			
+			session.setAttribute("mvo", m);
+			rttr.addFlashAttribute("msgType", "성공 메세지");
+			rttr.addFlashAttribute("msg", "이미지 변경이 성공했습니다.");	
+			return "redirect:/memUpdate.do";
+		}	
+		
+	
+		
+		@PostMapping("/memImageUpdate.do")
+		public String memImageUpdate2(HttpSession session, HttpServletRequest request) throws Exception {
+			String mvoId = (String)session.getAttribute("id");
+	    	System.out.println(mvoId); 
+	    	
+	    	Member member = new Member();
+	    	
+	    	member.setMemID(mvoId);
+	    	
+	    	
+	    	
+	    	
+	    	
+	    	
+			String filename = "-";
+			if (!member.getFile1().isEmpty()) {
+				filename = member.getFile1().getOriginalFilename(); 
+				try {
+					ServletContext application = request.getSession().getServletContext();
+					String path = application.getRealPath("/resources/images/");
+					System.out.println(path);
+					new File(path).mkdir(); 
+					member.getFile1().transferTo(new File(path + filename));
+					} catch (Exception e) {
+						e.printStackTrace();
+				}
+			}
+			
+//			String cateCode = request.getParameter("category");
+//			productDto.setCateCode(cateCode);
+//			System.out.println(cateCode);
+			
+			
+		
+			member.setMemProfile(filename); 
+			
+			
+			return "redirect:/list.do";
+
+		}
+		
+		
+
+}

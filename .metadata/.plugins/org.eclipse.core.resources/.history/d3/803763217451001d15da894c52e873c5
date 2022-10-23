@@ -1,0 +1,11 @@
+package com.example.site.controller.secure;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+
+@Controller
+@RequestMapping("/secure")
+public class Con_secure {
+
+}

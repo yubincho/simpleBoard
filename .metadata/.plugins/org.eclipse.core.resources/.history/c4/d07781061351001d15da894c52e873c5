@@ -1,0 +1,5 @@
+package com.example.site.config;
+
+public class SecurityConfig {
+
+}
