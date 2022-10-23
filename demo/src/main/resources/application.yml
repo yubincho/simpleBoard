@@ -23,8 +23,8 @@ logging:
 #  example:
 #    upload-path: C:/uploads 
 #
-upload:
-  path: C:/uploads 
+#upload:
+#  path: C:/uploads 
   
 #resource: C:/uploads    
 
@@ -46,7 +46,7 @@ spring:
   # 파일 업로드 설정
   servlet:
     multipart: 
-      enabled: true
+      enabled: false
       max-file-size: 10MB
       max-request-size: 10MB
       

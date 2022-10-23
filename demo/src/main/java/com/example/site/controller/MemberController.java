@@ -29,7 +29,9 @@ import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 public class MemberController {
@@ -210,24 +212,27 @@ public class MemberController {
 		
 		// 회원사진 이미지 업로드(upload, DB저장)
 		@RequestMapping("/memImageUpdate.do")
-		public String memImageUpdate(HttpServletRequest request,HttpSession session, RedirectAttributes rttr) throws IOException {
+		public String memImageUpdate1(HttpServletRequest request,HttpSession session, RedirectAttributes rttr) throws IOException {
 			// 파일업로드 API(cos.jar, 3가지)
 			MultipartRequest multi = null;
 			int fileMaxSize = 40 * 1024 * 1024; // 10MB		
-			//String savePath = request.getSession().getServletContext().getRealPath("resources/upload"); // 1.png
-			//String savePath = request.getServletContext().getRealPath("resources/upload");
-			//String savePath = request.getRealPath("resources/upload"); // 이클립스가 저장하는 경로
-//			System.out.println(savePath);
+			String savePath = request.getSession().getServletContext().getRealPath("/resources/images/"); // 1.png
+//			String savePath = request.getServletContext().getRealPath("/resources/images/");
+//			String savePath = request.getRealPath("/resources/images/"); // 이클립스가 저장하는 경로
+			
+			System.out.println(savePath);
 			//String savePath = "C:\\JAVA_AM_CYB\\temp"; // 절대경로
-			String savePath = "C:\\uploads"; // 절대경로
+//			String savePath = "C:\\uploads"; // 절대경로
+//			String savePath = "D:\\bookstore\\work\\demo\\src\\main\\webapp\\resources\\images";
 			//String savePath = request.getServletContext().getFile("classpath:static/upload/").toPath().toString();
 			//String savePath = ResourceUtils.getFile("classpath:static/upload/").toPath().toString();
 			
 			
 			
 			try {                                                                        // 1_1.png
+				DefaultFileRenamePolicy policy = new DefaultFileRenamePolicy();
 				// 이미지 업로드
-				multi=new MultipartRequest(request, savePath, fileMaxSize, "UTF-8", new DefaultFileRenamePolicy());
+				multi=new MultipartRequest(request, savePath, fileMaxSize, "UTF-8", policy);
 			
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -246,7 +251,7 @@ public class MemberController {
 				if(ext.equals("PNG") || ext.equals("GIF") || ext.equals("JPG")){
 					// 새로 업로드된이미지(new->1.PNG), 현재DB에 있는 이미지(old->4.PNG)
 					String oldProfile=memberMapper.getMember(memID).getMemProfile();
-					File oldFile=new File(savePath+"/"+oldProfile);
+					File oldFile=new File(savePath +"\\"+oldProfile);
 					if(oldFile.exists()) {
 						oldFile.delete();
 					}                 
@@ -282,8 +287,48 @@ public class MemberController {
 			return "redirect:/memUpdate.do";
 		}	
 		
-
+	
 		
+//		@PostMapping("/memImageUpdate.do")
+//		public String memImageUpdate2(HttpSession session, HttpServletRequest request) throws Exception {
+//			String mvoId = (String)session.getAttribute("id");
+//	    	System.out.println(mvoId); 
+//	    	
+//	    	Member member = new Member();
+//	    	
+//	    	member.setMemID(mvoId);
+//	    	
+//	    	
+//	    	
+//	    	
+//	    	
+//	    	
+//			String filename = "-";
+//			if (!member.getFile1().isEmpty()) {
+//				filename = member.getFile1().getOriginalFilename(); 
+//				try {
+//					ServletContext application = request.getSession().getServletContext();
+//					String path = application.getRealPath("/resources/images/");
+//					System.out.println(path);
+//					new File(path).mkdir(); 
+//					member.getFile1().transferTo(new File(path + filename));
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//				}
+//			}
+//			
+////			String cateCode = request.getParameter("category");
+////			productDto.setCateCode(cateCode);
+////			System.out.println(cateCode);
+//			
+//			
+//		
+//			member.setMemProfile(filename); 
+//			
+//			
+//			return "redirect:/list.do";
+//
+//		}
 		
 		
 

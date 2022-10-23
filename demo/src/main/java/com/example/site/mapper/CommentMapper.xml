@@ -19,20 +19,22 @@
 
     <insert id="insert" parameterType="com.example.site.domain.CommentDto">
         INSERT INTO comment
-            (bno, pcno, comment, commenter, reg_date, up_date)
+            (bno, pcno, comment, commenter, reg_date,  up_date)
         VALUES
             (#{bno}, #{pcno}, #{comment}, #{commenter}, now(), now())
     </insert>
 
     <select id="selectAll" parameterType="int" resultType="com.example.site.domain.CommentDto">
-        SELECT cno, bno, ifnull(pcno, cno) as pcno, comment, commenter, reg_date, up_date
-        FROM comment
+        SELECT cno, bno, ifnull(pcno, cno) as pcno, comment, commenter, u.memProfile as profile, date_format(reg_date, '%Y-%m-%d') as reg_date, date_format(up_date, '%Y-%m-%d') as up_date
+        FROM comment 
+        LEFT OUTER JOIN mem_tbl u 
+        ON commenter = u.memID
         WHERE bno = #{bno}
         ORDER BY pcno asc, cno asc;
     </select>
 
     <select id="select" parameterType="int" resultType="com.example.site.domain.CommentDto">
-        SELECT cno, bno, pcno, comment, commenter, reg_date, up_date
+        SELECT cno, bno, pcno, comment, commenter, date_format(reg_date, '%Y-%m-%d') as reg_date, date_format(up_date, '%Y-%m-%d') as up_date
         FROM comment
         WHERE cno = #{cno}
     </select>

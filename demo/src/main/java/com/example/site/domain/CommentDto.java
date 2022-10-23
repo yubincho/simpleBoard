@@ -15,6 +15,9 @@ public class CommentDto {
     private String  commenter;
     private Date    reg_date;
     private Date    up_date;
+    
+    private String profile;
+    
 
     public CommentDto() {}
     public CommentDto(Integer bno, Integer pcno, String comment, String commenter) {

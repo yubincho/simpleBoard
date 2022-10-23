@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 
 <script src="http://code.jquery.com/jquery-1.11.1.min.js" type="text/javascript"></script>
@@ -188,6 +189,13 @@ list-style:none;
 #text-success {
 	
 	height: 30px;
+}
+
+#contact3 {
+	width:50px;
+	height: 20px;
+	text : center;
+	padding: 2px;
 }
 
 </style>
@@ -496,9 +504,15 @@ if(msg=="MOD_ERR") alert("게시물 수정에 실패하였습니다. 다시 시�
 		
 	});
 	
+	
+	
      
   let toHtml = function(result) {
  	 let tmp = "<ul>";
+ 	 
+ 	var userid ="";
+ 	
+ 	
  	 
  	 result.forEach(function(comment){
  		 
@@ -507,12 +521,13 @@ if(msg=="MOD_ERR") alert("게시물 수정에 실패하였습니다. 다시 시�
  		 tmp += ' data-bno=' + comment.bno + '>'
  		 if(comment.cno != comment.pcno)
  			 tmp += '<span style="padding-left: 5px; font-size:20px;">ㄴ</span>'
+ 		 tmp += ' <img src="${contextPath}/resources/images/${' + profile + '}" id="reply_profile" style="width:25px; height:25px; border-radius:50%;"/>'
  		 tmp += ' <span class="commenter " style="padding-left:5px; font-size:20px;">' + comment.commenter + '</span>'
  		 tmp += ' <div class="text-success" style="font-size:15px;">' + comment.comment + '</div>'
  		 tmp += ' <span class="up_date">' + comment.up_date + '</span>'
- 		 tmp += '<button class="delBtn btn btn-contact-bg" style="width:80px;">삭제</button>'
- 		 tmp += '<button class="modBtn btn btn-contact-bg" style="width:80px;">수정</button>'
- 		 tmp += '<button class="replyBtn btn btn-contact-bg" style="width:80px;">답글</button>'
+ 		 tmp += '<button class="delBtn btn btn-contact-bg" id="contact3" >삭제</button>'
+ 		 tmp += '<button class="modBtn btn btn-contact-bg" id="contact3" >수정</button>'
+ 		 tmp += '<button class="replyBtn btn btn-contact-bg" id="contact3">답글</button>'
  		 tmp += '</li>'
      
  	 })

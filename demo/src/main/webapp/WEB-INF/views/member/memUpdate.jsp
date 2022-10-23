@@ -17,7 +17,7 @@
     <div class="panel-body">
     <div>
    
-    <img src="${contextPath}/images/12.png"  style="width:50px; height:50px;"/>
+    <img src="/site/resources/images/${mvo.memProfile}"  style="width:50px; height:50px;"/>
     <br/><br/>
      <h5><a href="${contextPath}/memImage.do" class="" >프로필 사진 등록/변경하기</a></h5>
      <br/><br/>

@@ -55,8 +55,8 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
 						<li class="dropdown">
 							<c:if test="${mvo.memProfile eq ''}">
 							<a href="#" class="nav-item nav-link" data-toggle="dropdown">
-								<img src="${contextPath}/images/12.png"  style="width:25px; height:25px; border-radius:50%;"/>
-									 ${mov.memName}님 방문을 환영합니다.</a>
+								<img src="${contextPath}/resources/images/12.png"  style="width:25px; height:25px; border-radius:50%;"/>
+									 ${mvo.memName}님 방문을 환영합니다.</a>
 									 <div class="dropdown-menu">
 											<a href="#" class="dropdown-item">프로필사진등록</a>
 											<a href="${contextPath}/memUpdate.do" class="dropdown-item">회원정보수정</a>
@@ -65,8 +65,8 @@ integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6J
 							</c:if>
 							 <c:if test="${mvo.memProfile ne ''}">
 							 <a href="#" class="nav-item nav-link" data-toggle="dropdown">
-							 	<img src="C:\uploads\${mvo.memProfile}"  style="width:25px; height:25px; border-radius:50%;"/>
-							 		 ${mov.memName}님 방문을 환영합니다.</a>
+							 	<img src="${contextPath}/resources/images/${mvo.memProfile}"  style="width:25px; height:25px; border-radius:50%;"/>
+							 		 ${mvo.memName}님 방문을 환영합니다.</a>
 							 		<div class="dropdown-menu">
 										<a href="#" class="dropdown-item">프로필사진등록</a>
 										<a href="${contextPath}/memUpdate.do" class="dropdown-item">회원정보수정</a>
