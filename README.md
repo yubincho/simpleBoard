@@ -13,7 +13,8 @@
 
 * 다이아그램
 
-![image](https://user-images.githubusercontent.com/58660769/197371382-48ad912c-8ab5-461d-befa-3a0b8c57748e.png)
+![image](https://user-images.githubusercontent.com/58660769/197371450-4e7b0035-f6ee-41f0-9a47-c04ad8544190.png)
+
 
 ## 
 
