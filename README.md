@@ -35,7 +35,7 @@
 
 
 * 게시판 페이징과 검색 기능 
-![image](https://user-images.githubusercontent.com/58660769/196580255-4b500755-ba2e-4f61-9cd2-fc6554c95b18.png)
+![image](https://user-images.githubusercontent.com/58660769/197427127-69e262e4-aaec-4690-91a1-ba03c93c3d55.png)
 
 
 * 게시판 상세보기, 댓글(대댓글 포함) 기능
