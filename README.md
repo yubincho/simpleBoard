@@ -26,11 +26,11 @@
 ![image](https://user-images.githubusercontent.com/58660769/196579775-56b34e77-dcd8-4a66-ba80-1165bb69a8fa.png)
 
 
-* 로그인, 회원가입 시 팝업 메시지 
+* 로그인, 회원가입, 게시글, 댓글(대댓글) 작성/삭제 시 팝업 메시지 
 ![image](https://user-images.githubusercontent.com/58660769/196580621-d249d2d1-3e29-4d03-b5b5-d24ef16da684.png)
 
   
-* 회원의 정보수정  
+* 회원의 정보수정 (이미지 업로드 포함)
 ![image](https://user-images.githubusercontent.com/58660769/196580140-64dc490c-d01a-4d9d-80ef-f88ce087eeb3.png)
 
 
