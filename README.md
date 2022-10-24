@@ -40,6 +40,7 @@
 
 * 게시판 상세보기, 댓글(대댓글 포함) 기능
 ![image](https://user-images.githubusercontent.com/58660769/196580331-5c3c26db-b798-4221-b539-0fe744880770.png)
+![image](https://user-images.githubusercontent.com/58660769/197426843-0c28783c-b83d-4d36-9fbb-732ad5fc0124.png)
 
 
 
