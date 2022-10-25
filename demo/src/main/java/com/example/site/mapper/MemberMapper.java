@@ -2,6 +2,7 @@ package com.example.site.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.example.site.domain.AuthVO;
 import com.example.site.domain.Member;
 
 @Mapper //- Mybatis API
@@ -12,4 +13,6 @@ public interface MemberMapper {
 	public int memUpdate(Member mvo); // 수정하기
 	public Member getMember(String memID);
 	public void memProfileUpdate(Member mvo);
+	public void authInsert(AuthVO saveVO);
+	public void authDelete(String memID);
 }

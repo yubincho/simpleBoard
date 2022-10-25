@@ -9,7 +9,7 @@
     </delete>
 
     <select id="count" parameterType="int" resultType="int">
-        SELECT count(*) FROM comment
+        SELECT count(*) FROM comment 
         WHERE  bno = #{bno}
     </select>
 
@@ -25,18 +25,19 @@
     </insert>
 
     <select id="selectAll" parameterType="int" resultType="com.example.site.domain.CommentDto">
-        SELECT cno, bno, ifnull(pcno, cno) as pcno, comment, commenter, u.memProfile as profile, date_format(reg_date, '%Y-%m-%d') as reg_date, date_format(up_date, '%Y-%m-%d') as up_date
-        FROM comment 
+        SELECT c.cno, c.bno, ifnull(pcno, cno) as pcno, c.comment, c.commenter, u.memProfile as profile, date_format(reg_date, '%Y-%m-%d') as reg_date, date_format(up_date, '%Y-%m-%d') as up_date
+        FROM comment c
         LEFT OUTER JOIN mem_tbl u 
-        ON commenter = u.memID
-        WHERE bno = #{bno}
+        ON c.commenter = u.memID
+        WHERE c.bno = #{bno}
         ORDER BY pcno asc, cno asc;
     </select>
 
     <select id="select" parameterType="int" resultType="com.example.site.domain.CommentDto">
-        SELECT cno, bno, pcno, comment, commenter, date_format(reg_date, '%Y-%m-%d') as reg_date, date_format(up_date, '%Y-%m-%d') as up_date
-        FROM comment
-        WHERE cno = #{cno}
+        select c.cno, c.bno, c.pcno, c.comment, c.commenter, date_format(reg_date, '%Y-%m-%d') as reg_date, date_format(up_date, '%Y-%m-%d') as up_date, mem.memProfile as profile 
+        from comment c LEFT OUTER JOIN mem_tbl mem 
+        on mem.memID=c.commenter
+        where c.cno = #{cno} 
     </select>
 
     <update id="update" parameterType="com.example.site.domain.CommentDto">

@@ -2,6 +2,7 @@ package com.example.site.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.site.domain.AuthVO;
 //import com.example.site.config.UploadFile;
 import com.example.site.domain.Member;
 import com.example.site.mapper.MemberMapper;
@@ -37,8 +40,9 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberController {
 	
 
-	private final MemberMapper memberMapper;
+	private final MemberMapper memberMapper; 
 	
+	private final PasswordEncoder pwEncoder;
 	
 	
 	@GetMapping("/memJoin.do")
@@ -73,7 +77,7 @@ public class MemberController {
 			memPassword1==null || memPassword1.equals("") ||
 			memPassword2==null || memPassword2.equals("") ||
 			m.getMemName()==null || m.getMemName().equals("") ||	
-			m.getMemAge()==0 ||
+			m.getMemAge()==0 || m.getAuthList().size() == 0 ||
 			m.getMemGender()==null || m.getMemGender().equals("") ||
 			m.getMemEmail()==null || m.getMemEmail().equals("")) {
 			// 누락메세지를 가지고 가기? =>객체바인딩(Model, HttpServletRequest, HttpSession)
@@ -90,22 +94,40 @@ public class MemberController {
 			m.setMemProfile(""); // 사진이미는 없다는 의미 ""
 			
 			// 회원을 테이블에 저장하기
+			// 비밀번호 암호화하기
+			String encyptPw=pwEncoder.encode(m.getMemPassword());
+		    m.setMemPassword(encyptPw); 
+		    
 			int result=memberMapper.register(m);
 			
 			if(result==1) { // 회원가입 성공 메세지
-			rttr.addFlashAttribute("msgType", "성공 메세지");
-			rttr.addFlashAttribute("msg", "회원가입에 성공했습니다.");
-			
-			// 회원가입이 성공하면=>로그인처리하기
-			session.setAttribute("mvo", m); // ${!empty mvo}
-			return "redirect:/";
+//				  // 권한테이블에 회원의 권한을 저장하기
+				 List<AuthVO> list = m.getAuthList();	
+				   for(AuthVO authVO : list) {
+					   if(authVO.getAuth()!=null) {
+						   AuthVO saveVO=new AuthVO();
+						   saveVO.setMemID(m.getMemID()); //회원아이디
+						   saveVO.setAuth(authVO.getAuth()); //회원 권한
+						   memberMapper.authInsert(saveVO);
+					   }
+				   }
+				
+				rttr.addFlashAttribute("msgType", "성공 메세지");
+				rttr.addFlashAttribute("msg", "회원가입에 성공했습니다.");
+				
+				// 회원가입이 성공하면=>로그인처리하기
+				// getMember() -> 회원정보 + 권한정보 
+				Member mvo = memberMapper.getMember(m.getMemID());
+				System.out.println(mvo);
+				session.setAttribute("mvo", mvo); // ${!empty mvo}
+				return "redirect:/";
 			}else {
-			rttr.addFlashAttribute("msgType", "실패 메세지");
-			rttr.addFlashAttribute("msg", "이미 존재하는 회원입니다.");
-			
-			return "redirect:/memJoin.do";
-				}		
-			}
+				rttr.addFlashAttribute("msgType", "실패 메세지");
+				rttr.addFlashAttribute("msg", "이미 존재하는 회원입니다.");
+				
+				return "redirect:/memJoin.do";
+			}		
+	}
 	
 	
 	// 로그아웃 처리
@@ -126,12 +148,10 @@ public class MemberController {
 			   return "redirect:/memLogin.do";			
 			}
 			Member mvo=memberMapper.memLogin(m);
-			if(mvo!=null) { // 로그인에 성공
-			//  세션 객체를 얻어오기
-		        
+			if(mvo!=null && pwEncoder.matches(m.getMemPassword(), mvo.getMemPassword())) { // 로그인에 성공
+				//  세션 객체를 얻어오기        
 		        //  세션 객체에 id를 저장
 		        session.setAttribute("id", m.getMemID());
-		        
 		        if(rememberId) {
 		            //     1. 쿠키를 생성
 		            Cookie cookie = new Cookie("id", m.getMemID()); // ctrl+shift+o 자동 import
@@ -174,7 +194,7 @@ public class MemberController {
 			   memPassword1==null || memPassword1.equals("") ||
 			   memPassword2==null || memPassword2.equals("") ||
 			   m.getMemName()==null || m.getMemName().equals("") ||	
-			   m.getMemAge()==0 ||
+			   m.getMemAge()==0 || m.getAuthList().size() == 0 ||
 			   m.getMemGender()==null || m.getMemGender().equals("") ||
 			   m.getMemEmail()==null || m.getMemEmail().equals("")) {
 			   // 누락메세지를 가지고 가기? =>객체바인딩(Model, HttpServletRequest, HttpSession)
@@ -187,9 +207,27 @@ public class MemberController {
 			   rttr.addFlashAttribute("msg", "비밀번호가 서로 다릅니다.");
 			   return "redirect:/memUpdate.do";  // ${msgType} , ${msg}
 			}		
+			
 			// 회원을 수정저장하기
+			// 비밀번호 암호화 
+			String encyptPw = pwEncoder.encode(m.getMemPassword());
+			m.setMemPassword(encyptPw);
+			
 			int result=memberMapper.memUpdate(m);
 			if(result==1) { // 수정성공 메세지
+				// 기존권한을 삭제하고
+				memberMapper.authDelete(m.getMemID());
+					
+		   		 // 새로운 권한을 추가하기	
+				 List<AuthVO> list=m.getAuthList();			
+				 for(AuthVO authVO : list) { 
+					 if(authVO.getAuth()!=null) { 
+						AuthVO saveVO=new AuthVO();
+						saveVO.setMemID(m.getMemID()); 
+						saveVO.setAuth(authVO.getAuth());
+						memberMapper.authInsert(saveVO); 
+					  } 
+		       }
 			   rttr.addFlashAttribute("msgType", "성공 메세지");
 			   rttr.addFlashAttribute("msg", "회원정보 수정에 성공했습니다.");
 			   // 회원수정이 성공하면=>로그인처리하기
@@ -229,7 +267,7 @@ public class MemberController {
 			
 			
 			
-			try {                                                                        // 1_1.png
+			try {                                                                       
 				DefaultFileRenamePolicy policy = new DefaultFileRenamePolicy();
 				// 이미지 업로드
 				multi=new MultipartRequest(request, savePath, fileMaxSize, "UTF-8", policy);
@@ -251,6 +289,7 @@ public class MemberController {
 				if(ext.equals("PNG") || ext.equals("GIF") || ext.equals("JPG")){
 					// 새로 업로드된이미지(new->1.PNG), 현재DB에 있는 이미지(old->4.PNG)
 					String oldProfile=memberMapper.getMember(memID).getMemProfile();
+					// Window -> 경로 : "\\" 로 설정됨. ( Mac -> / )
 					File oldFile=new File(savePath +"\\"+oldProfile);
 					if(oldFile.exists()) {
 						oldFile.delete();
@@ -277,10 +316,7 @@ public class MemberController {
 			Member m=memberMapper.getMember(memID);
 			
 			// 세션을 새롭게 생성한다. <- 세션에 변경된 정보가 포함 
-			
-			
-			
-			
+		
 			session.setAttribute("mvo", m);
 			rttr.addFlashAttribute("msgType", "성공 메세지");
 			rttr.addFlashAttribute("msg", "이미지 변경이 성공했습니다.");	

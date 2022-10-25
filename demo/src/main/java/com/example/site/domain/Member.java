@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@ToString @Setter
+@Data
 public class Member {
 	  private int memIdx; 
 	  private String memID;  
@@ -19,7 +19,7 @@ public class Member {
 	  private String memGender;   
 	  private String memEmail;
 	  private String memProfile; //사진정보
-	 
+	  private List<AuthVO> authList;
 	
 	  
 	  public Member() {
@@ -39,49 +39,12 @@ public class Member {
 		
 	}
 
-
-	public int getMemIdx() {
-		return memIdx;
-	}
-
-
 	public String getMemID() {
-		return memID;
-	}
-
-
-	public String getMemPassword() {
-		return memPassword;
-	}
-
-
-	public String getMemName() {
-		return memName;
-	}
-
-
-	public int getMemAge() {
-		return memAge;
-	}
-
-
-	public String getMemGender() {
-		return memGender;
-	}
-
-
-	public String getMemEmail() {
-		return memEmail;
-	}
-
-
-	public String getMemProfile() {
-		return memProfile;
-	}
-
+        return memID; 
+    }
 
 	
-	  
+	
 	
 	  
 	  

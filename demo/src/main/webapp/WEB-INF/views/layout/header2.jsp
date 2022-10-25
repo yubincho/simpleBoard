@@ -56,7 +56,12 @@ $(document).ready(function(){
 							<c:if test="${mvo.memProfile eq ''}">
 							<a href="#" class="nav-item nav-link" data-toggle="dropdown">
 								<img src="${contextPath}/resources/images/12.png"  style="width:25px; height:25px; border-radius:50%;"/>
-									 ${mvo.memName}님 방문을 환영합니다.</a>
+									 ${mvo.memName}( 
+										<c:forEach var="authVO" items="${mvo.authList}">
+											<c:if test="${authVO.auth eq 'ROLE_USER'}">U</c:if>
+											<c:if test="${authVO.auth eq 'ROLE_MANAGER'}">M</c:if>
+											<c:if test="${authVO.auth eq 'ROLE_ADMIN'}">A</c:if>
+										</c:forEach> )님 방문을 환영합니다.</a>
 									 <div class="dropdown-menu">
 											<a href="#" class="dropdown-item">프로필사진등록</a>
 											<a href="${contextPath}/memUpdate.do" class="dropdown-item">회원정보수정</a>
@@ -65,8 +70,13 @@ $(document).ready(function(){
 							</c:if>
 							 <c:if test="${mvo.memProfile ne ''}">
 							 <a href="#" class="nav-item nav-link" data-toggle="dropdown">
-							 	<img src="${contextPath}/resources/images/${mvo.memProfile}"  style="width:25px; height:25px; border-radius:50%;"/>
-							 		 ${mvo.memName}님 방문을 환영합니다.</a>
+							 	<img src="${contextPath}/resources/images/${mvo.memProfile}"  style="width:33px; height:33px; border-radius:50%;"/>
+							 		 ${mvo.memName}( 
+										<c:forEach var="authVO" items="${mvo.authList}">
+											<c:if test="${authVO.auth eq 'ROLE_USER'}">U</c:if>
+											<c:if test="${authVO.auth eq 'ROLE_MANAGER'}">M</c:if>
+											<c:if test="${authVO.auth eq 'ROLE_ADMIN'}">A</c:if>
+										</c:forEach> )님 방문을 환영합니다.</a>
 							 		<div class="dropdown-menu">
 										<a href="#" class="dropdown-item">프로필사진등록</a>
 										<a href="${contextPath}/memUpdate.do" class="dropdown-item">회원정보수정</a>

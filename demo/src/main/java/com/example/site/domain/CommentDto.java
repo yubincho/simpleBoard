@@ -3,6 +3,8 @@ package com.example.site.domain;
 import java.util.Date;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 
 @Data
@@ -13,8 +15,12 @@ public class CommentDto {
     private Integer pcno;
     private String  comment;
     private String  commenter;
-    private Date    reg_date;
-    private Date    up_date;
+    
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone="Asia/Seoul")
+    private Date reg_date;
+    
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone="Asia/Seoul")
+    private Date up_date;
     
     private String profile;
     

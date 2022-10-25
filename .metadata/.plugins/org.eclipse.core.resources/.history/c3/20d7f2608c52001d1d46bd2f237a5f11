@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.site.mapper.MemberMapper">
+  
+  <select id="registerCheck" resultType="com.example.site.domain.Member">
+    select * from mem_tbl where memID=#{memID}
+  </select>
+  
+  <insert id="register" parameterType="com.example.site.domain.Member">
+     insert into
+     mem_tbl(memIdx, memID,memPassword,memName,memAge,memGender,memEmail,memProfile)
+     values((select IFNULL(MAX(memID)+1, 1) from mem_tbl mem), 
+     #{memID},#{memPassword},#{memName},#{memAge},#{memGender},#{memEmail},#{memProfile})
+  </insert>
+  
+  <select id="memLogin" parameterType="com.example.site.domain.Member" 
+                        resultType="com.example.site.domain.Member">
+     select * from mem_tbl 
+     where memID=#{memID} and memPassword=#{memPassword}
+  </select>
+  
+  <update id="memUpdate" parameterType="com.example.site.domain.Member">
+     update mem_tbl set memPassword=#{memPassword}, memName=#{memName}, 
+            memAge=#{memAge},memGender=#{memGender},memEmail=#{memEmail} 
+            where memID=#{memID}      
+  </update>
+  
+  <select id="getMember" resultType="com.example.site.domain.Member">
+     select * from mem_tbl where memID=#{memID}
+  </select>  
+  
+  <update id="memProfileUpdate" parameterType="com.example.site.domain.Member">
+     update mem_tbl set memProfile=#{memProfile} where memID=#{memID}
+  </update>
+  
+  
+</mapper>
